@@ -2,6 +2,14 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 
+// SVG Icons
+const ArrowLeftIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="19" y1="12" x2="5" y2="12"/>
+    <polyline points="12 19 5 12 12 5"/>
+  </svg>
+)
+
 export default function RegisterPage() {
   const navigate = useNavigate()
   const { signUp } = useAuth()
@@ -40,14 +48,17 @@ export default function RegisterPage() {
           top: '32px',
           left: '32px',
           padding: '10px 20px',
-          borderRadius: '8px',
+          borderRadius: '10px',
           background: 'transparent',
           border: '1px solid #e7e5e4',
           color: '#1c1917',
           fontWeight: '500',
           textDecoration: 'none',
           fontSize: '14px',
-          transition: 'all 0.2s'
+          transition: 'all 0.2s',
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '8px'
         }}
         onMouseEnter={(e) => {
           e.currentTarget.style.background = '#fafaf9'
@@ -58,7 +69,7 @@ export default function RegisterPage() {
           e.currentTarget.style.borderColor = '#e7e5e4'
         }}
       >
-        ← Back to Home
+        <ArrowLeftIcon /> Back to Home
       </Link>
 
       <div style={{ width: '100%', maxWidth: '440px' }}>

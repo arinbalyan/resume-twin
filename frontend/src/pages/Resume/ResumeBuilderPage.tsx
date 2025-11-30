@@ -3,6 +3,27 @@ import { useAuth } from '../../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 
+// SVG Icons
+const ArrowLeftIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="19" y1="12" x2="5" y2="12"/>
+    <polyline points="12 19 5 12 12 5"/>
+  </svg>
+)
+
+const CheckIcon = () => (
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="20 6 9 17 4 12"/>
+  </svg>
+)
+
+const PlusIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="12" y1="5" x2="12" y2="19"/>
+    <line x1="5" y1="12" x2="19" y2="12"/>
+  </svg>
+)
+
 interface Template {
   id: string
   name: string
@@ -333,9 +354,12 @@ export default function ResumeBuilderPage() {
                           background: '#22c55e',
                           color: '#ffffff',
                           fontSize: '12px',
-                          fontWeight: '600'
+                          fontWeight: '600',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px'
                         }}>
-                          ✓ Selected
+                          <CheckIcon /> Selected
                         </span>
                       )}
                     </div>
@@ -400,16 +424,29 @@ export default function ResumeBuilderPage() {
               }}
               style={{
                 padding: '12px 24px',
-                borderRadius: '8px',
+                borderRadius: '10px',
                 background: '#facc15',
                 border: 'none',
                 color: '#1e3a8a',
                 fontWeight: '600',
                 cursor: 'pointer',
-                fontSize: '14px'
+                fontSize: '14px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                transition: 'all 0.2s',
+                boxShadow: '0 2px 8px rgba(250, 204, 21, 0.3)'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)'
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(250, 204, 21, 0.4)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = '0 2px 8px rgba(250, 204, 21, 0.3)'
               }}
             >
-              + Add Experience
+              <PlusIcon /> Add Experience
             </button>
             {resumeData.experience.length > 0 && (
               <div style={{ marginTop: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -460,16 +497,29 @@ export default function ResumeBuilderPage() {
               }}
               style={{
                 padding: '12px 24px',
-                borderRadius: '8px',
+                borderRadius: '10px',
                 background: '#facc15',
                 border: 'none',
                 color: '#1e3a8a',
                 fontWeight: '600',
                 cursor: 'pointer',
-                fontSize: '14px'
+                fontSize: '14px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                transition: 'all 0.2s',
+                boxShadow: '0 2px 8px rgba(250, 204, 21, 0.3)'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)'
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(250, 204, 21, 0.4)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = '0 2px 8px rgba(250, 204, 21, 0.3)'
               }}
             >
-              + Add Education
+              <PlusIcon /> Add Education
             </button>
             {resumeData.education.length > 0 && (
               <div style={{ marginTop: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -577,16 +627,29 @@ export default function ResumeBuilderPage() {
             <button
               onClick={() => navigate('/dashboard')}
               style={{
-                padding: '8px 16px',
-                borderRadius: '8px',
+                padding: '10px 18px',
+                borderRadius: '10px',
                 background: 'transparent',
                 border: '1px solid #e7e5e4',
                 color: '#1c1917',
                 cursor: 'pointer',
-                fontSize: '14px'
+                fontSize: '14px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                transition: 'all 0.2s',
+                fontWeight: '500'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = '#1e3a8a'
+                e.currentTarget.style.background = '#fafaf9'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = '#e7e5e4'
+                e.currentTarget.style.background = 'transparent'
               }}
             >
-              ← Back
+              <ArrowLeftIcon /> Back
             </button>
             <h1 style={{ fontSize: '24px', fontWeight: '700', color: '#1c1917' }}>Resume Builder</h1>
           </div>

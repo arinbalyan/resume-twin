@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import { supabase } from '../services/supabase'
-import { User } from '@supabase/supabase-js'
+import { supabase } from '../lib/supabase'
+import { User, Session, AuthChangeEvent } from '@supabase/supabase-js'
 import toast from 'react-hot-toast'
 
 interface AuthContextType {
@@ -19,13 +19,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     // Check active sessions
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session } }: { data: { session: Session | null } }) => {
       setUser(session?.user ?? null)
       setLoading(false)
     })
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: AuthChangeEvent, session: Session | null) => {
       setUser(session?.user ?? null)
     })
 

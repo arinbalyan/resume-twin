@@ -1,48 +1,55 @@
 {
-  "name": "resume-twin-platform",
+  "name": "resume-twin",
   "version": "1.0.0",
-  "description": "Portfolio & Resume Generation Platform",
+  "description": "Portfolio & Resume Generation Platform with AI-powered optimization",
   "private": true,
   "workspaces": [
-    "frontend",
-    "backend"
+    "frontend"
   ],
   "scripts": {
-    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "dev": "concurrently -n \"frontend,backend\" -c \"cyan,magenta\" \"npm run dev:frontend\" \"npm run dev:backend\"",
     "dev:frontend": "cd frontend && npm run dev",
-    "dev:backend": "cd backend && uv run uvicorn app.main:app --reload --port 8000",
-    "build": "npm run build:frontend && npm run build:backend",
+    "dev:backend": "cd backend && uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000",
+    "build": "npm run build:frontend",
     "build:frontend": "cd frontend && npm run build",
-    "build:backend": "cd backend && uv run python -m compileall app/",
+    "preview": "cd frontend && npm run preview",
     "test": "npm run test:frontend && npm run test:backend",
-    "test:frontend": "cd frontend && npm test",
+    "test:frontend": "cd frontend && npm run test",
     "test:backend": "cd backend && uv run pytest tests/ -v",
+    "test:unit": "cd backend && uv run pytest tests/services/ -v",
     "test:integration": "cd backend && uv run pytest tests/integration/ -v",
+    "test:coverage": "cd backend && uv run pytest tests/ -v --cov=app --cov-report=html",
     "lint": "npm run lint:frontend && npm run lint:backend",
     "lint:frontend": "cd frontend && npm run lint",
-    "lint:backend": "cd backend && uv run black . && uv run isort . && uv run ruff check .",
+    "lint:backend": "cd backend && uv run ruff check .",
+    "lint:fix": "npm run lint:fix:frontend && npm run lint:fix:backend",
+    "lint:fix:frontend": "cd frontend && npm run lint -- --fix",
+    "lint:fix:backend": "cd backend && uv run ruff check . --fix",
     "type-check": "npm run type-check:frontend && npm run type-check:backend",
     "type-check:frontend": "cd frontend && npm run type-check",
     "type-check:backend": "cd backend && uv run mypy app/",
     "format": "npm run format:frontend && npm run format:backend",
     "format:frontend": "cd frontend && npm run format",
     "format:backend": "cd backend && uv run black . && uv run isort .",
+    "format:check": "npm run format:check:frontend && npm run format:check:backend",
+    "format:check:frontend": "cd frontend && npx prettier --check .",
+    "format:check:backend": "cd backend && uv run black --check . && uv run isort --check-only .",
     "clean": "npm run clean:frontend && npm run clean:backend",
-    "clean:frontend": "cd frontend && rm -rf node_modules dist .next build",
-    "clean:backend": "cd backend && rm -rf __pycache__ .pytest_cache",
+    "clean:frontend": "cd frontend && npm run clean",
+    "clean:backend": "cd backend && powershell -Command \"Remove-Item -Recurse -Force -ErrorAction SilentlyContinue __pycache__, .pytest_cache, .mypy_cache, htmlcov, .coverage\"",
     "install:all": "npm install && cd frontend && npm install && cd ../backend && uv sync",
-    "docker:dev": "docker-compose up -d",
-    "docker:dev:down": "docker-compose down",
+    "install:frontend": "cd frontend && npm install",
+    "install:backend": "cd backend && uv sync",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
     "docker:build": "docker-compose build",
-    "deploy:staging": "echo 'Deploying to staging...'",
-    "deploy:production": "echo 'Deploying to production...'"
+    "docker:logs": "docker-compose logs -f",
+    "docker:restart": "docker-compose restart",
+    "setup": "npm run install:all",
+    "validate": "npm run lint && npm run type-check && npm run test"
   },
   "devDependencies": {
-    "concurrently": "^9.2.1",
-    "eslint": "^9.39.1",
-    "prettier": "^3.6.2",
-    "@typescript-eslint/eslint-plugin": "^8.48.0",
-    "@typescript-eslint/parser": "^8.48.0"
+    "concurrently": "^9.2.1"
   },
   "keywords": [
     "resume",
@@ -52,18 +59,23 @@
     "career",
     "ai",
     "templates",
-    "latex"
+    "latex",
+    "pdf-generation",
+    "fastapi",
+    "react",
+    "vite",
+    "supabase"
   ],
   "author": "Resume Twin Team",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/your-org/resume-twin-platform.git"
+    "url": "git+https://github.com/arinbalyan/resume-twin.git"
   },
   "bugs": {
-    "url": "https://github.com/your-org/resume-twin-platform/issues"
+    "url": "https://github.com/arinbalyan/resume-twin/issues"
   },
-  "homepage": "https://github.com/your-org/resume-twin-platform#readme",
+  "homepage": "https://github.com/arinbalyan/resume-twin#readme",
   "engines": {
     "node": ">=18.0.0",
     "npm": ">=9.0.0"

@@ -6,7 +6,7 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0a0a14] to-[#1a1a2e]">
+      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-[#0a0a14] to-[#1a1a2e]">
         <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-purple-500"></div>
       </div>
     )

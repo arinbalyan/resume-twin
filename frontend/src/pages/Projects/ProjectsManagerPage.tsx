@@ -2,6 +2,43 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 
+// SVG Icons
+const ArrowLeftIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="19" y1="12" x2="5" y2="12"/>
+    <polyline points="12 19 5 12 12 5"/>
+  </svg>
+)
+
+const ExternalLinkIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+    <polyline points="15 3 21 3 21 9"/>
+    <line x1="10" y1="14" x2="21" y2="3"/>
+  </svg>
+)
+
+const PlusIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="12" y1="5" x2="12" y2="19"/>
+    <line x1="5" y1="12" x2="19" y2="12"/>
+  </svg>
+)
+
+const EditIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+  </svg>
+)
+
+const TrashIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="3 6 5 6 21 6"/>
+    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+  </svg>
+)
+
 interface Project {
   id: number
   name: string
@@ -148,16 +185,29 @@ export default function ProjectsManagerPage() {
             <button
               onClick={() => navigate('/dashboard')}
               style={{
-                padding: '8px 16px',
-                borderRadius: '8px',
+                padding: '10px 18px',
+                borderRadius: '10px',
                 background: 'transparent',
                 border: '1px solid #e7e5e4',
                 color: '#1c1917',
                 cursor: 'pointer',
-                fontSize: '14px'
+                fontSize: '14px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                transition: 'all 0.2s',
+                fontWeight: '500'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = '#1e3a8a'
+                e.currentTarget.style.background = '#fafaf9'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = '#e7e5e4'
+                e.currentTarget.style.background = 'transparent'
               }}
             >
-              ← Back
+              <ArrowLeftIcon /> Back
             </button>
             <h1 style={{ fontSize: '24px', fontWeight: '700', color: '#1c1917' }}>Projects Manager</h1>
           </div>
@@ -165,16 +215,29 @@ export default function ProjectsManagerPage() {
             onClick={handleAddProject}
             style={{
               padding: '10px 24px',
-              borderRadius: '8px',
+              borderRadius: '10px',
               background: '#facc15',
               border: 'none',
               color: '#1e3a8a',
               fontWeight: '600',
               cursor: 'pointer',
-              fontSize: '14px'
+              fontSize: '14px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              transition: 'all 0.2s',
+              boxShadow: '0 2px 8px rgba(250, 204, 21, 0.3)'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-2px)'
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(250, 204, 21, 0.4)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.boxShadow = '0 2px 8px rgba(250, 204, 21, 0.3)'
             }}
           >
-            + New Project
+            <PlusIcon /> New Project
           </button>
         </div>
       </div>
@@ -278,50 +341,85 @@ export default function ProjectsManagerPage() {
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{
-                    display: 'block',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
                     color: '#1e3a8a',
                     fontSize: '14px',
                     textDecoration: 'none',
                     marginBottom: '16px',
-                    fontWeight: '500'
+                    fontWeight: '500',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = '#facc15'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = '#1e3a8a'
                   }}
                 >
-                  View Project →
+                  View Project <ExternalLinkIcon />
                 </a>
               )}
 
-              <div style={{ display: 'flex', gap: '8px', paddingTop: '16px', borderTop: '1px solid #e7e5e4' }}>
+              <div style={{ display: 'flex', gap: '10px', paddingTop: '16px', borderTop: '1px solid #e7e5e4' }}>
                 <button
                   onClick={() => handleEditProject(project)}
                   style={{
                     flex: 1,
-                    padding: '8px',
-                    borderRadius: '6px',
+                    padding: '10px',
+                    borderRadius: '8px',
                     background: 'transparent',
                     border: '1px solid #e7e5e4',
                     color: '#1c1917',
                     fontSize: '14px',
                     cursor: 'pointer',
-                    fontWeight: '500'
+                    fontWeight: '500',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = '#1e3a8a'
+                    e.currentTarget.style.background = '#fafaf9'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = '#e7e5e4'
+                    e.currentTarget.style.background = 'transparent'
                   }}
                 >
-                  Edit
+                  <EditIcon /> Edit
                 </button>
                 <button
                   onClick={() => handleDeleteProject(project.id)}
                   style={{
                     flex: 1,
-                    padding: '8px',
-                    borderRadius: '6px',
+                    padding: '10px',
+                    borderRadius: '8px',
                     background: 'transparent',
-                    border: '1px solid #dc2626',
+                    border: '1px solid #fecaca',
                     color: '#dc2626',
                     fontSize: '14px',
                     cursor: 'pointer',
-                    fontWeight: '500'
+                    fontWeight: '500',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = '#fef2f2'
+                    e.currentTarget.style.borderColor = '#dc2626'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'transparent'
+                    e.currentTarget.style.borderColor = '#fecaca'
                   }}
                 >
-                  Delete
+                  <TrashIcon /> Delete
                 </button>
               </div>
             </div>

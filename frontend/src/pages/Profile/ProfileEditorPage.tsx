@@ -3,6 +3,49 @@ import { useAuth } from '../../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 
+// SVG Icons
+const UserIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+    <circle cx="12" cy="7" r="4"/>
+  </svg>
+)
+
+const BriefcaseIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+  </svg>
+)
+
+const GraduationCapIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+    <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+  </svg>
+)
+
+const ArrowLeftIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="19" y1="12" x2="5" y2="12"/>
+    <polyline points="12 19 5 12 12 5"/>
+  </svg>
+)
+
+const PlusIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="12" y1="5" x2="12" y2="19"/>
+    <line x1="5" y1="12" x2="19" y2="12"/>
+  </svg>
+)
+
+const TrashIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="3 6 5 6 21 6"/>
+    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+  </svg>
+)
+
 export default function ProfileEditorPage() {
   const { user } = useAuth()
   const navigate = useNavigate()
@@ -25,9 +68,9 @@ export default function ProfileEditorPage() {
   }
 
   const tabs = [
-    { id: 'personal', label: 'Personal Info', icon: '👤' },
-    { id: 'experience', label: 'Experience', icon: '💼' },
-    { id: 'education', label: 'Education', icon: '🎓' }
+    { id: 'personal', label: 'Personal Info', icon: <UserIcon /> },
+    { id: 'experience', label: 'Experience', icon: <BriefcaseIcon /> },
+    { id: 'education', label: 'Education', icon: <GraduationCapIcon /> }
   ]
 
   const renderPersonalTab = () => (
@@ -100,16 +143,29 @@ export default function ProfileEditorPage() {
           }}
           style={{
             padding: '10px 20px',
-            borderRadius: '8px',
+            borderRadius: '10px',
             background: '#facc15',
             border: 'none',
             color: '#1e3a8a',
             fontWeight: '600',
             cursor: 'pointer',
-            fontSize: '14px'
+            fontSize: '14px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            transition: 'all 0.2s',
+            boxShadow: '0 2px 8px rgba(250, 204, 21, 0.3)'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'translateY(-2px)'
+            e.currentTarget.style.boxShadow = '0 4px 12px rgba(250, 204, 21, 0.4)'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'translateY(0)'
+            e.currentTarget.style.boxShadow = '0 2px 8px rgba(250, 204, 21, 0.3)'
           }}
         >
-          + Add Experience
+          <PlusIcon /> Add Experience
         </button>
       </div>
       
@@ -130,9 +186,27 @@ export default function ProfileEditorPage() {
                     setExperiences(experiences.filter(e => e.id !== exp.id))
                     toast.success('Experience removed')
                   }}
-                  style={{ color: '#dc2626', fontSize: '14px', background: 'none', border: 'none', cursor: 'pointer' }}
+                  style={{ 
+                    color: '#dc2626', 
+                    fontSize: '14px', 
+                    background: 'none', 
+                    border: 'none', 
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '6px 12px',
+                    borderRadius: '6px',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = '#fef2f2'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'none'
+                  }}
                 >
-                  Remove
+                  <TrashIcon /> Remove
                 </button>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -188,16 +262,29 @@ export default function ProfileEditorPage() {
           }}
           style={{
             padding: '10px 20px',
-            borderRadius: '8px',
+            borderRadius: '10px',
             background: '#facc15',
             border: 'none',
             color: '#1e3a8a',
             fontWeight: '600',
             cursor: 'pointer',
-            fontSize: '14px'
+            fontSize: '14px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            transition: 'all 0.2s',
+            boxShadow: '0 2px 8px rgba(250, 204, 21, 0.3)'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'translateY(-2px)'
+            e.currentTarget.style.boxShadow = '0 4px 12px rgba(250, 204, 21, 0.4)'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'translateY(0)'
+            e.currentTarget.style.boxShadow = '0 2px 8px rgba(250, 204, 21, 0.3)'
           }}
         >
-          + Add Education
+          <PlusIcon /> Add Education
         </button>
       </div>
       
@@ -218,9 +305,27 @@ export default function ProfileEditorPage() {
                     setEducations(educations.filter(e => e.id !== edu.id))
                     toast.success('Education removed')
                   }}
-                  style={{ color: '#dc2626', fontSize: '14px', background: 'none', border: 'none', cursor: 'pointer' }}
+                  style={{ 
+                    color: '#dc2626', 
+                    fontSize: '14px', 
+                    background: 'none', 
+                    border: 'none', 
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '6px 12px',
+                    borderRadius: '6px',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = '#fef2f2'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'none'
+                  }}
                 >
-                  Remove
+                  <TrashIcon /> Remove
                 </button>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -271,25 +376,39 @@ export default function ProfileEditorPage() {
         padding: '20px 32px',
         position: 'sticky',
         top: 0,
-        zIndex: 50
+        zIndex: 50,
+        boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
       }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <button
               onClick={() => navigate('/dashboard')}
               style={{
-                padding: '8px 16px',
-                borderRadius: '8px',
+                padding: '10px 18px',
+                borderRadius: '10px',
                 background: 'transparent',
                 border: '1px solid #e7e5e4',
                 color: '#1c1917',
                 cursor: 'pointer',
-                fontSize: '14px'
+                fontSize: '14px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                transition: 'all 0.2s',
+                fontWeight: '500'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = '#1e3a8a'
+                e.currentTarget.style.background = '#fafaf9'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = '#e7e5e4'
+                e.currentTarget.style.background = 'transparent'
               }}
             >
-              ← Back
+              <ArrowLeftIcon /> Back
             </button>
-            <h1 style={{ fontSize: '24px', fontWeight: '700', color: '#1c1917' }}>Profile Editor</h1>
+            <h1 style={{ fontSize: '24px', fontWeight: '700', color: '#1c1917', letterSpacing: '-0.01em' }}>Profile Editor</h1>
           </div>
           <button
             onClick={handleSave}
@@ -312,16 +431,16 @@ export default function ProfileEditorPage() {
       {/* Content */}
       <div style={{ maxWidth: '900px', margin: '0 auto', padding: '40px 32px' }}>
         {/* Tabs */}
-        <div style={{ display: 'flex', gap: '8px', marginBottom: '32px', background: '#ffffff', padding: '8px', borderRadius: '12px', border: '1px solid #e7e5e4' }}>
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '32px', background: '#ffffff', padding: '8px', borderRadius: '14px', border: '1px solid #e7e5e4', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
               style={{
                 flex: 1,
-                padding: '12px 20px',
-                borderRadius: '8px',
-                background: activeTab === tab.id ? '#facc15' : 'transparent',
+                padding: '14px 20px',
+                borderRadius: '10px',
+                background: activeTab === tab.id ? 'linear-gradient(135deg, #facc15 0%, #fbbf24 100%)' : 'transparent',
                 border: 'none',
                 color: activeTab === tab.id ? '#1e3a8a' : '#78716c',
                 fontWeight: activeTab === tab.id ? '600' : '500',
@@ -331,10 +450,23 @@ export default function ProfileEditorPage() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '8px'
+                gap: '10px',
+                boxShadow: activeTab === tab.id ? '0 2px 8px rgba(250, 204, 21, 0.3)' : 'none'
+              }}
+              onMouseEnter={(e) => {
+                if (activeTab !== tab.id) {
+                  e.currentTarget.style.background = '#fafaf9'
+                  e.currentTarget.style.color = '#1c1917'
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (activeTab !== tab.id) {
+                  e.currentTarget.style.background = 'transparent'
+                  e.currentTarget.style.color = '#78716c'
+                }
               }}
             >
-              <span>{tab.icon}</span>
+              <span style={{ display: 'flex', alignItems: 'center' }}>{tab.icon}</span>
               {tab.label}
             </button>
           ))}

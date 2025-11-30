@@ -1,9 +1,13 @@
 """Application configuration settings."""
 
+from pathlib import Path
 from typing import List, Optional
 from pydantic import AnyHttpUrl, EmailStr, HttpUrl, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic.networks import PostgresDsn
+
+# Get the project root directory (parent of backend/)
+PROJECT_ROOT = Path(__file__).parent.parent.parent.parent
 
 
 class Settings(BaseSettings):
@@ -70,7 +74,7 @@ class Settings(BaseSettings):
     PDF_GENERATION_METHOD: str = "html"  # Options: "latex", "html", "overleaf"
     LATEX_COMPILATION_TIMEOUT: int = 60
     LATEX_COMPILE_SERVER_URL: Optional[str] = None
-    TEMPLATES_DIR: str = "templates"  # Directory containing templates
+    TEMPLATES_DIR: str = str(PROJECT_ROOT / "templates")  # Directory containing templates
     
     # HTML-to-PDF Configuration (for weasyprint)
     HTML_TO_PDF_ENABLED: bool = True
@@ -90,6 +94,38 @@ class Settings(BaseSettings):
     # AI Services
     OPENAI_API_KEY: Optional[str] = None
     AI_OPTIMIZATION_ENABLED: bool = True
+    
+    # ============== FREE API INTEGRATIONS ==============
+    
+    # GitHub API (FREE - 5000 req/hr with token, 60/hr without)
+    # Get token at: https://github.com/settings/tokens (no scopes needed for public repos)
+    GITHUB_TOKEN: Optional[str] = None
+    
+    # Hunter.io Email Verification (FREE - 50 verifications/month)
+    # Get key at: https://hunter.io/api
+    HUNTER_API_KEY: Optional[str] = None
+    
+    # Abstract API Email Validation (FREE - 100 requests/month)
+    # Get key at: https://www.abstractapi.com/email-validation-api
+    ABSTRACT_EMAIL_API_KEY: Optional[str] = None
+    
+    # Clearbit Company Data (FREE for logos)
+    # Get key at: https://clearbit.com/logo
+    CLEARBIT_API_KEY: Optional[str] = None
+    
+    # IPInfo Location Detection (FREE - 50,000 requests/month)
+    # Get key at: https://ipinfo.io/signup
+    IPINFO_TOKEN: Optional[str] = None
+    
+    # Unsplash Images (FREE - 50 requests/hour)
+    # Get keys at: https://unsplash.com/developers
+    UNSPLASH_ACCESS_KEY: Optional[str] = None
+    
+    # PDFShift HTML-to-PDF API (FREE - 50 conversions/month)
+    # Get key at: https://pdfshift.io/
+    PDFSHIFT_API_KEY: Optional[str] = None
+    
+    # ============== END FREE API INTEGRATIONS ==============
     
     # Rate Limiting
     RATE_LIMIT_PER_MINUTE: int = 100

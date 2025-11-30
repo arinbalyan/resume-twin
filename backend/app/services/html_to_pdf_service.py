@@ -1,17 +1,34 @@
-"""HTML-to-PDF service using WeasyPrint."""
+"""HTML-to-PDF service using WeasyPrint or fallback methods."""
 
 import logging
 from pathlib import Path
 from typing import Dict, Any, Optional, List
 from io import BytesIO
 
-from weasyprint import HTML, CSS
-from weasyprint.text.fonts import FontConfiguration
 from jinja2 import Environment, FileSystemLoader, Template
 
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
+
+# Try to import WeasyPrint, but handle gracefully if GTK libraries aren't available
+WEASYPRINT_AVAILABLE = False
+HTML = None
+CSS = None
+FontConfiguration = None
+
+try:
+    from weasyprint import HTML, CSS
+    from weasyprint.text.fonts import FontConfiguration
+    WEASYPRINT_AVAILABLE = True
+    logger.info("WeasyPrint loaded successfully")
+except OSError as e:
+    logger.warning(f"WeasyPrint not available (missing GTK libraries): {e}")
+    logger.warning("PDF generation will use fallback method. Install GTK for full WeasyPrint support:")
+    logger.warning("  Windows: Install GTK3 from https://github.com/nickvdyck/weasyprint-windows/releases")
+    logger.warning("  Or run: pip install weasyprint[test] and install GTK runtime")
+except ImportError as e:
+    logger.warning(f"WeasyPrint import failed: {e}")
 
 
 # Sample resume data for template previews
@@ -191,10 +208,14 @@ class HtmlToPdfService:
             lstrip_blocks=True
         )
         
-        # Font configuration for WeasyPrint
-        self.font_config = FontConfiguration()
+        # Font configuration for WeasyPrint (only if available)
+        self.font_config = FontConfiguration() if WEASYPRINT_AVAILABLE else None
+        self.weasyprint_available = WEASYPRINT_AVAILABLE
         
-        logger.info(f"HTML-to-PDF service initialized with templates directory: {self.templates_dir}")
+        if WEASYPRINT_AVAILABLE:
+            logger.info(f"HTML-to-PDF service initialized with WeasyPrint. Templates: {self.templates_dir}")
+        else:
+            logger.warning(f"HTML-to-PDF service initialized WITHOUT WeasyPrint. PDF generation will be limited. Templates: {self.templates_dir}")
 
     def render_template(self, template_name: str, context: Dict[str, Any]) -> str:
         """
@@ -238,8 +259,17 @@ class HtmlToPdfService:
             PDF file as bytes
 
         Raises:
-            Exception: If PDF generation fails
+            Exception: If PDF generation fails or WeasyPrint not available
         """
+        if not self.weasyprint_available:
+            error_msg = (
+                "WeasyPrint is not available. On Windows, you need to install GTK3 libraries. "
+                "See: https://doc.courtbouillon.org/weasyprint/stable/first_steps.html#installation "
+                "Alternatively, use PDF_GENERATION_METHOD=latex in your .env file."
+            )
+            logger.error(error_msg)
+            raise RuntimeError(error_msg)
+            
         try:
             # Render HTML template
             html_content = self.render_template(template_name, context)
@@ -281,8 +311,17 @@ class HtmlToPdfService:
             PDF file as bytes
 
         Raises:
-            Exception: If PDF generation fails
+            Exception: If PDF generation fails or WeasyPrint not available
         """
+        if not self.weasyprint_available:
+            error_msg = (
+                "WeasyPrint is not available. On Windows, you need to install GTK3 libraries. "
+                "See: https://doc.courtbouillon.org/weasyprint/stable/first_steps.html#installation "
+                "Alternatively, use PDF_GENERATION_METHOD=latex in your .env file."
+            )
+            logger.error(error_msg)
+            raise RuntimeError(error_msg)
+            
         try:
             # Create HTML object
             html = HTML(string=html_content)
@@ -392,6 +431,23 @@ class HtmlToPdfService:
             if self.get_template_info(t) is not None
         ]
 
+    def is_pdf_generation_available(self) -> bool:
+        """Check if PDF generation is available."""
+        return self.weasyprint_available
+
+    def get_status(self) -> Dict[str, Any]:
+        """Get service status including WeasyPrint availability."""
+        return {
+            "weasyprint_available": self.weasyprint_available,
+            "templates_dir": str(self.templates_dir),
+            "templates_count": len(self.list_available_templates()),
+            "message": (
+                "WeasyPrint is ready for PDF generation" 
+                if self.weasyprint_available 
+                else "WeasyPrint not available - install GTK3 libraries or use LaTeX method"
+            )
+        }
+
     def preview_template(self, template_name: str, custom_data: Optional[Dict[str, Any]] = None) -> bytes:
         """
         Generate a preview PDF using sample data.
@@ -402,6 +458,9 @@ class HtmlToPdfService:
 
         Returns:
             PDF bytes for preview
+            
+        Raises:
+            RuntimeError: If WeasyPrint not available
         """
         # Merge sample data with any custom overrides
         preview_data = SAMPLE_RESUME_DATA.copy()

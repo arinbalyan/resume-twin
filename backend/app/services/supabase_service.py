@@ -201,3 +201,8 @@ class SupabaseClient:
 
 # Global Supabase client instance
 supabase_client = SupabaseClient()
+
+# Alias for backward compatibility
+supabase_service = supabase_client
+# Alias for compatibility
+supabase_service = supabase_client

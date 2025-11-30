@@ -1,9 +1,11 @@
 """Profile management endpoints."""
 
 from fastapi import APIRouter, HTTPException, Depends, Query
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from uuid import UUID
 from app.services.profile_service import ProfileService
+from app.services.github_service import github_service
+from app.services.resume_scorer_service import resume_scorer
 from app.models.user import Profile, ProfileCreate, ProfileUpdate, ProfileStats
 from app.utils.logger import setup_logger
 
@@ -160,3 +162,143 @@ async def update_completion_score(profile_id: str):
     except Exception as e:
         logger.error(f"Error updating completion score for {profile_id}: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
+
+
+# ============== GitHub Integration ==============
+
+@router.get("/github/{username}")
+async def get_github_profile(username: str) -> Dict[str, Any]:
+    """
+    Fetch GitHub profile and repositories for a username.
+    
+    Returns:
+    - User profile information
+    - Top repositories by stars
+    - Contribution statistics
+    - Top programming languages
+    """
+    try:
+        result = await github_service.get_complete_profile(username)
+        
+        if result.get("error"):
+            raise HTTPException(status_code=404, detail=result["error"])
+        
+        return result
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching GitHub profile for {username}: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to fetch GitHub profile: {str(e)}")
+
+
+@router.get("/github/{username}/repos")
+async def get_github_repos(
+    username: str,
+    limit: int = Query(10, ge=1, le=100),
+    sort: str = Query("stars", regex="^(stars|updated|pushed)$"),
+    include_forks: bool = Query(False)
+) -> Dict[str, Any]:
+    """
+    Fetch GitHub repositories for a username.
+    
+    Query Parameters:
+    - limit: Maximum repos to return (1-100)
+    - sort: Sort by stars, updated, or pushed
+    - include_forks: Include forked repositories
+    """
+    try:
+        repos = await github_service.get_user_repos(
+            username, 
+            limit=limit, 
+            sort=sort, 
+            include_forks=include_forks
+        )
+        
+        return {
+            "username": username,
+            "count": len(repos),
+            "repositories": repos
+        }
+    except Exception as e:
+        logger.error(f"Error fetching GitHub repos for {username}: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to fetch GitHub repositories: {str(e)}")
+
+
+@router.post("/github/{username}/import-projects")
+async def import_github_projects(
+    username: str,
+    limit: int = Query(5, ge=1, le=20)
+) -> Dict[str, Any]:
+    """
+    Import GitHub repositories as projects for resume.
+    
+    Converts top repositories to project format suitable for resume templates.
+    """
+    try:
+        repos = await github_service.get_user_repos(username, limit=limit, sort="stars")
+        
+        if not repos:
+            raise HTTPException(status_code=404, detail=f"No repositories found for {username}")
+        
+        projects = github_service.repos_to_projects(repos)
+        
+        return {
+            "username": username,
+            "imported_count": len(projects),
+            "projects": projects,
+            "message": f"Successfully converted {len(projects)} repositories to project format"
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error importing GitHub projects for {username}: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to import GitHub projects: {str(e)}")
+
+
+@router.get("/github/status")
+async def get_github_status() -> Dict[str, Any]:
+    """Check GitHub API configuration status."""
+    return {
+        "configured": github_service.is_available(),
+        "rate_limit": "5000/hour" if github_service.is_available() else "60/hour",
+        "message": "GitHub token configured" if github_service.is_available() 
+                   else "No GitHub token - limited to 60 requests/hour"
+    }
+
+
+# ============== Resume Scoring ==============
+
+@router.post("/score-resume")
+async def score_resume(
+    resume_data: Dict[str, Any],
+    job_description: Optional[str] = None
+) -> Dict[str, Any]:
+    """
+    Score a resume and get improvement suggestions.
+    
+    Request Body:
+    - resume_data: Resume data with sections (summary, experience, skills, etc.)
+    - job_description: Optional job description for keyword matching
+    
+    Returns:
+    - Overall score (0-100)
+    - Category scores
+    - ATS compatibility score
+    - Issues and suggestions
+    - Keyword matches (if job description provided)
+    """
+    try:
+        result = resume_scorer.score_resume(resume_data, job_description)
+        
+        return {
+            "overall_score": result.overall_score,
+            "ats_compatibility": result.ats_compatibility,
+            "category_scores": result.category_scores,
+            "issues": result.issues,
+            "suggestions": result.suggestions,
+            "keyword_matches": result.keyword_matches,
+            "improvement_priorities": resume_scorer.get_improvement_priority(result)
+        }
+    except Exception as e:
+        logger.error(f"Error scoring resume: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to score resume: {str(e)}")
