@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ user_name }} - Resume</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        :root {
+            --primary: #facc15;
+            --primary-dark: #eab308;
+            --secondary: #1e3a8a;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --bg-light: #fefce8;
+            --bg-white: #ffffff;
+            --border: #e2e8f0;
+        }
+        
+        @page {
+            size: A4;
+            margin: 0;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 10pt;
+            line-height: 1.5;
+            color: var(--text-dark);
+            background: var(--bg-white);
+        }
+        
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 15mm 20mm;
+            margin: 0 auto;
+            background: var(--bg-white);
+        }
+        
+        /* Header - Modern Split Design */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+        
+        .header-left {
+            flex: 1;
+        }
+        
+        .header h1 {
+            font-size: 32pt;
+            font-weight: 800;
+            color: var(--secondary);
+            margin-bottom: 4px;
+            letter-spacing: -1px;
+        }
+        
+        .header .title {
+            font-size: 14pt;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+        
+        .header-right {
+            text-align: right;
+        }
+        
+        .contact-item {
+            font-size: 9pt;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 6px;
+        }
+        
+        .contact-item a {
+            color: var(--secondary);
+            text-decoration: none;
+        }
+        
+        .contact-icon {
+            width: 14px;
+            height: 14px;
+            background: var(--primary);
+            border-radius: 3px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8pt;
+        }
+        
+        /* Two Column Layout */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 0.4fr;
+            gap: 25px;
+        }
+        
+        .left-column, .right-column {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+        
+        /* Section Styling */
+        .section {
+            page-break-inside: avoid;
+        }
+        
+        .section-title {
+            font-size: 11pt;
+            font-weight: 700;
+            color: var(--secondary);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 10px;
+            padding-bottom: 6px;
+            border-bottom: 2px solid var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 16px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+        
+        /* Summary */
+        .summary-text {
+            font-size: 10pt;
+            color: var(--text-dark);
+            line-height: 1.6;
+            text-align: justify;
+        }
+        
+        /* Experience & Projects */
+        .entry {
+            margin-bottom: 14px;
+            page-break-inside: avoid;
+        }
+        
+        .entry:last-child {
+            margin-bottom: 0;
+        }
+        
+        .entry-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 3px;
+        }
+        
+        .entry-title {
+            font-size: 11pt;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+        
+        .entry-date {
+            font-size: 9pt;
+            color: var(--text-muted);
+            font-weight: 500;
+            background: var(--bg-light);
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+        
+        .entry-subtitle {
+            font-size: 10pt;
+            color: var(--secondary);
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        
+        .entry-description {
+            font-size: 9pt;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            font-style: italic;
+        }
+        
+        .entry-bullets {
+            margin-left: 16px;
+        }
+        
+        .entry-bullets li {
+            font-size: 9pt;
+            color: var(--text-dark);
+            margin-bottom: 3px;
+            line-height: 1.4;
+            position: relative;
+        }
+        
+        .entry-bullets li::marker {
+            color: var(--primary);
+        }
+        
+        /* Technologies */
+        .tech-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 6px;
+        }
+        
+        .tech-tag {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: var(--secondary);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 8pt;
+            font-weight: 600;
+        }
+        
+        /* Links */
+        .entry-links {
+            margin-top: 4px;
+            font-size: 8pt;
+        }
+        
+        .entry-links a {
+            color: var(--secondary);
+            text-decoration: none;
+            margin-right: 10px;
+            font-weight: 500;
+        }
+        
+        /* Skills (Right Column) */
+        .skill-category {
+            margin-bottom: 12px;
+        }
+        
+        .skill-category:last-child {
+            margin-bottom: 0;
+        }
+        
+        .skill-category-title {
+            font-size: 9pt;
+            font-weight: 700;
+            color: var(--secondary);
+            margin-bottom: 6px;
+        }
+        
+        .skill-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        
+        .skill-pill {
+            background: var(--bg-light);
+            color: var(--text-dark);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 8pt;
+            font-weight: 500;
+            border: 1px solid var(--border);
+        }
+        
+        /* Education (Right Column) */
+        .edu-entry {
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .edu-entry:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .edu-degree {
+            font-size: 10pt;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+        
+        .edu-school {
+            font-size: 9pt;
+            color: var(--secondary);
+            font-weight: 500;
+        }
+        
+        .edu-date {
+            font-size: 8pt;
+            color: var(--text-muted);
+        }
+        
+        .edu-gpa {
+            font-size: 8pt;
+            color: var(--text-dark);
+            margin-top: 2px;
+        }
+        
+        /* Certifications */
+        .cert-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+            margin-bottom: 8px;
+            font-size: 9pt;
+        }
+        
+        .cert-badge {
+            width: 6px;
+            height: 6px;
+            background: var(--primary);
+            border-radius: 50%;
+            margin-top: 5px;
+            flex-shrink: 0;
+        }
+        
+        .cert-name {
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+        
+        .cert-issuer {
+            color: var(--text-muted);
+            font-size: 8pt;
+        }
+        
+        /* Print Optimization */
+        @media print {
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            
+            .page {
+                padding: 10mm 15mm;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <h1>{{ user_name }}</h1>
+                <div class="title">{{ title }}</div>
+            </div>
+            <div class="header-right">
+                {% if email %}
+                <div class="contact-item">
+                    <span>{{ email }}</span>
+                    <span class="contact-icon">✉</span>
+                </div>
+                {% endif %}
+                {% if phone %}
+                <div class="contact-item">
+                    <span>{{ phone }}</span>
+                    <span class="contact-icon">📱</span>
+                </div>
+                {% endif %}
+                {% if location %}
+                <div class="contact-item">
+                    <span>{{ location }}</span>
+                    <span class="contact-icon">📍</span>
+                </div>
+                {% endif %}
+                {% if linkedin %}
+                <div class="contact-item">
+                    <a href="{{ linkedin }}">LinkedIn</a>
+                    <span class="contact-icon">🔗</span>
+                </div>
+                {% endif %}
+                {% if github %}
+                <div class="contact-item">
+                    <a href="{{ github }}">GitHub</a>
+                    <span class="contact-icon">💻</span>
+                </div>
+                {% endif %}
+                {% if website %}
+                <div class="contact-item">
+                    <a href="{{ website }}">Portfolio</a>
+                    <span class="contact-icon">🌐</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="main-content">
+            <!-- Left Column - Main Content -->
+            <div class="left-column">
+                <!-- Summary -->
+                {% if summary %}
+                <div class="section">
+                    <h2 class="section-title">About Me</h2>
+                    <p class="summary-text">{{ summary }}</p>
+                </div>
+                {% endif %}
+
+                <!-- Experience -->
+                {% if experience and experience|length > 0 %}
+                <div class="section">
+                    <h2 class="section-title">Experience</h2>
+                    {% for exp in experience %}
+                    <div class="entry">
+                        <div class="entry-header">
+                            <span class="entry-title">{{ exp.position }}</span>
+                            <span class="entry-date">{{ exp.start_date }} – {{ exp.end_date or 'Present' }}</span>
+                        </div>
+                        <div class="entry-subtitle">{{ exp.company }}{% if exp.location %} · {{ exp.location }}{% endif %}</div>
+                        {% if exp.achievements and exp.achievements|length > 0 %}
+                        <ul class="entry-bullets">
+                            {% for achievement in exp.achievements %}
+                            <li>{{ achievement }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Projects -->
+                {% if projects and projects|length > 0 %}
+                <div class="section">
+                    <h2 class="section-title">Projects</h2>
+                    {% for project in projects %}
+                    <div class="entry">
+                        <div class="entry-header">
+                            <span class="entry-title">{{ project.title }}</span>
+                            {% if project.start_date %}
+                            <span class="entry-date">{{ project.start_date }}{% if project.end_date %} – {{ project.end_date }}{% endif %}</span>
+                            {% endif %}
+                        </div>
+                        {% if project.description %}
+                        <div class="entry-description">{{ project.description }}</div>
+                        {% endif %}
+                        {% if project.bullet_points and project.bullet_points|length > 0 %}
+                        <ul class="entry-bullets">
+                            {% for bullet in project.bullet_points %}
+                            <li>{{ bullet }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                        {% if project.technologies and project.technologies|length > 0 %}
+                        <div class="tech-tags">
+                            {% for tech in project.technologies %}
+                            <span class="tech-tag">{{ tech }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        {% if project.github_url or project.live_url %}
+                        <div class="entry-links">
+                            {% if project.github_url %}
+                            <a href="{{ project.github_url }}">📂 Code</a>
+                            {% endif %}
+                            {% if project.live_url %}
+                            <a href="{{ project.live_url }}">🚀 Demo</a>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Right Column - Skills, Education, Certs -->
+            <div class="right-column">
+                <!-- Skills -->
+                {% if skills %}
+                <div class="section">
+                    <h2 class="section-title">Skills</h2>
+                    {% for category, items in skills.items() %}
+                    <div class="skill-category">
+                        <div class="skill-category-title">{{ category }}</div>
+                        <div class="skill-pills">
+                            {% for skill in items %}
+                            <span class="skill-pill">{{ skill }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Education -->
+                {% if education and education|length > 0 %}
+                <div class="section">
+                    <h2 class="section-title">Education</h2>
+                    {% for edu in education %}
+                    <div class="edu-entry">
+                        <div class="edu-degree">{{ edu.degree }}</div>
+                        <div class="edu-school">{{ edu.institution }}</div>
+                        <div class="edu-date">{{ edu.start_date }} – {{ edu.end_date or 'Present' }}</div>
+                        {% if edu.gpa %}
+                        <div class="edu-gpa">GPA: {{ edu.gpa }}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Certifications -->
+                {% if certifications and certifications|length > 0 %}
+                <div class="section">
+                    <h2 class="section-title">Certifications</h2>
+                    {% for cert in certifications %}
+                    <div class="cert-item">
+                        <span class="cert-badge"></span>
+                        <div>
+                            <span class="cert-name">{{ cert.name }}</span>
+                            <div class="cert-issuer">{{ cert.issuer }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,71 @@
+{
+  "name": "resume-twin-platform",
+  "version": "1.0.0",
+  "description": "Portfolio & Resume Generation Platform",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && uv run uvicorn app.main:app --reload --port 8000",
+    "build": "npm run build:frontend && npm run build:backend",
+    "build:frontend": "cd frontend && npm run build",
+    "build:backend": "cd backend && uv run python -m compileall app/",
+    "test": "npm run test:frontend && npm run test:backend",
+    "test:frontend": "cd frontend && npm test",
+    "test:backend": "cd backend && uv run pytest tests/ -v",
+    "test:integration": "cd backend && uv run pytest tests/integration/ -v",
+    "lint": "npm run lint:frontend && npm run lint:backend",
+    "lint:frontend": "cd frontend && npm run lint",
+    "lint:backend": "cd backend && uv run black . && uv run isort . && uv run ruff check .",
+    "type-check": "npm run type-check:frontend && npm run type-check:backend",
+    "type-check:frontend": "cd frontend && npm run type-check",
+    "type-check:backend": "cd backend && uv run mypy app/",
+    "format": "npm run format:frontend && npm run format:backend",
+    "format:frontend": "cd frontend && npm run format",
+    "format:backend": "cd backend && uv run black . && uv run isort .",
+    "clean": "npm run clean:frontend && npm run clean:backend",
+    "clean:frontend": "cd frontend && rm -rf node_modules dist .next build",
+    "clean:backend": "cd backend && rm -rf __pycache__ .pytest_cache",
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && uv sync",
+    "docker:dev": "docker-compose up -d",
+    "docker:dev:down": "docker-compose down",
+    "docker:build": "docker-compose build",
+    "deploy:staging": "echo 'Deploying to staging...'",
+    "deploy:production": "echo 'Deploying to production...'"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "eslint": "^9.39.1",
+    "prettier": "^3.6.2",
+    "@typescript-eslint/eslint-plugin": "^8.48.0",
+    "@typescript-eslint/parser": "^8.48.0"
+  },
+  "keywords": [
+    "resume",
+    "portfolio",
+    "cv",
+    "jobs",
+    "career",
+    "ai",
+    "templates",
+    "latex"
+  ],
+  "author": "Resume Twin Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/your-org/resume-twin-platform.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-org/resume-twin-platform/issues"
+  },
+  "homepage": "https://github.com/your-org/resume-twin-platform#readme",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}

@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ user_name }} - Developer Resume</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+        
+        :root {
+            --bg-dark: #0d1117;
+            --bg-card: #161b22;
+            --border: #30363d;
+            --text-primary: #c9d1d9;
+            --text-secondary: #8b949e;
+            --accent-yellow: #f0c14b;
+            --accent-green: #3fb950;
+            --accent-blue: #58a6ff;
+            --accent-purple: #a371f7;
+            --accent-orange: #d29922;
+        }
+        
+        @page {
+            size: A4;
+            margin: 0;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 9pt;
+            line-height: 1.5;
+            color: var(--text-primary);
+            background: var(--bg-dark);
+        }
+        
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto;
+            background: var(--bg-dark);
+            padding: 15mm;
+        }
+        
+        /* Header - GitHub Profile Style */
+        .header {
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-yellow), var(--accent-orange));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28pt;
+            font-weight: 700;
+            color: var(--bg-dark);
+            flex-shrink: 0;
+        }
+        
+        .header-content {
+            flex: 1;
+        }
+        
+        .header h1 {
+            font-size: 20pt;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 2px;
+        }
+        
+        .header .username {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11pt;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+        
+        .header .bio {
+            font-size: 10pt;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+        }
+        
+        .header-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        
+        .header-link {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 9pt;
+            color: var(--text-secondary);
+        }
+        
+        .header-link a {
+            color: var(--accent-blue);
+            text-decoration: none;
+        }
+        
+        /* Stats Bar */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 12px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 16pt;
+            font-weight: 700;
+            color: var(--accent-yellow);
+        }
+        
+        .stat-label {
+            font-size: 8pt;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Grid Layout for Main Content */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        
+        .content-full {
+            grid-column: 1 / -1;
+        }
+        
+        /* Section Cards */
+        .section-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .section-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10pt;
+        }
+        
+        .section-title {
+            font-size: 11pt;
+            font-weight: 600;
+            color: #ffffff;
+        }
+        
+        /* Skills - Tech Stack Style */
+        .skills-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        
+        .skill-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            background: rgba(240, 193, 75, 0.1);
+            border: 1px solid var(--accent-yellow);
+            border-radius: 20px;
+            font-size: 8pt;
+            color: var(--accent-yellow);
+            font-weight: 500;
+        }
+        
+        .skill-category {
+            margin-bottom: 12px;
+        }
+        
+        .skill-category-title {
+            font-size: 9pt;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Experience & Projects - Timeline Style */
+        .timeline-entry {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 16px;
+            border-left: 2px solid var(--border);
+        }
+        
+        .timeline-entry::before {
+            content: '';
+            position: absolute;
+            left: -5px;
+            top: 4px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-green);
+            border: 2px solid var(--bg-card);
+        }
+        
+        .timeline-entry:last-child {
+            border-left-color: transparent;
+        }
+        
+        .entry-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 4px;
+        }
+        
+        .entry-title {
+            font-size: 10pt;
+            font-weight: 600;
+            color: #ffffff;
+        }
+        
+        .entry-date {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 8pt;
+            color: var(--text-secondary);
+            background: var(--bg-dark);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        
+        .entry-subtitle {
+            font-size: 9pt;
+            color: var(--accent-blue);
+            margin-bottom: 6px;
+        }
+        
+        .entry-description {
+            font-size: 9pt;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+        
+        .entry-bullets {
+            list-style: none;
+            margin-left: 0;
+        }
+        
+        .entry-bullets li {
+            font-size: 9pt;
+            color: var(--text-primary);
+            margin-bottom: 3px;
+            padding-left: 14px;
+            position: relative;
+        }
+        
+        .entry-bullets li::before {
+            content: '▹';
+            position: absolute;
+            left: 0;
+            color: var(--accent-green);
+        }
+        
+        /* Tech Tags for Projects */
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 8px;
+        }
+        
+        .tech-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 7pt;
+            padding: 2px 6px;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-secondary);
+        }
+        
+        /* Project Links */
+        .project-links {
+            display: flex;
+            gap: 10px;
+            margin-top: 8px;
+        }
+        
+        .project-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 8pt;
+            color: var(--accent-blue);
+            text-decoration: none;
+            padding: 3px 8px;
+            border: 1px solid var(--accent-blue);
+            border-radius: 4px;
+        }
+        
+        /* Education */
+        .edu-entry {
+            margin-bottom: 10px;
+            padding: 10px;
+            background: var(--bg-dark);
+            border-radius: 6px;
+        }
+        
+        .edu-degree {
+            font-size: 10pt;
+            font-weight: 600;
+            color: #ffffff;
+        }
+        
+        .edu-school {
+            font-size: 9pt;
+            color: var(--accent-blue);
+        }
+        
+        .edu-meta {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 8pt;
+            color: var(--text-secondary);
+        }
+        
+        /* Certifications */
+        .cert-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        
+        .cert-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px;
+            background: var(--bg-dark);
+            border-radius: 4px;
+        }
+        
+        .cert-icon {
+            color: var(--accent-yellow);
+        }
+        
+        .cert-name {
+            font-size: 9pt;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+        
+        .cert-issuer {
+            font-size: 8pt;
+            color: var(--text-secondary);
+        }
+        
+        /* Print Styles */
+        @media print {
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <!-- Header - GitHub Profile Style -->
+        <div class="header">
+            <div class="avatar">
+                {{ user_name[:2]|upper if user_name else 'JD' }}
+            </div>
+            <div class="header-content">
+                <h1>{{ user_name }}</h1>
+                <div class="username">@{{ github_username if github_username else 'developer' }}</div>
+                <div class="bio">{{ title }}</div>
+                <div class="header-links">
+                    {% if email %}
+                    <span class="header-link">📧 <a href="mailto:{{ email }}">{{ email }}</a></span>
+                    {% endif %}
+                    {% if location %}
+                    <span class="header-link">📍 {{ location }}</span>
+                    {% endif %}
+                    {% if github %}
+                    <span class="header-link">💻 <a href="{{ github }}">GitHub</a></span>
+                    {% endif %}
+                    {% if linkedin %}
+                    <span class="header-link">🔗 <a href="{{ linkedin }}">LinkedIn</a></span>
+                    {% endif %}
+                    {% if website %}
+                    <span class="header-link">🌐 <a href="{{ website }}">Portfolio</a></span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Stats Bar -->
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div class="stat-value">{{ experience|length if experience else 0 }}</div>
+                <div class="stat-label">Roles</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ projects|length if projects else 0 }}</div>
+                <div class="stat-label">Projects</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ years_experience if years_experience else '5+' }}</div>
+                <div class="stat-label">Years Exp</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ certifications|length if certifications else 0 }}</div>
+                <div class="stat-label">Certs</div>
+            </div>
+        </div>
+        
+        <!-- Content Grid -->
+        <div class="content-grid">
+            <!-- Skills Section -->
+            <div class="section-card">
+                <div class="section-header">
+                    <span class="section-icon" style="background: rgba(240,193,75,0.2);">⚡</span>
+                    <h2 class="section-title">Tech Stack</h2>
+                </div>
+                {% if skills %}
+                    {% for category, items in skills.items() %}
+                    <div class="skill-category">
+                        <div class="skill-category-title">{{ category }}</div>
+                        <div class="skills-grid">
+                            {% for skill in items %}
+                            <span class="skill-badge">{{ skill }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            
+            <!-- Education Section -->
+            <div class="section-card">
+                <div class="section-header">
+                    <span class="section-icon" style="background: rgba(88,166,255,0.2);">🎓</span>
+                    <h2 class="section-title">Education</h2>
+                </div>
+                {% if education %}
+                    {% for edu in education %}
+                    <div class="edu-entry">
+                        <div class="edu-degree">{{ edu.degree }}</div>
+                        <div class="edu-school">{{ edu.institution }}</div>
+                        <div class="edu-meta">{{ edu.start_date }} - {{ edu.end_date or 'Present' }}{% if edu.gpa %} • GPA: {{ edu.gpa }}{% endif %}</div>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+                
+                <!-- Certifications -->
+                {% if certifications and certifications|length > 0 %}
+                <div class="section-header" style="margin-top: 16px;">
+                    <span class="section-icon" style="background: rgba(163,113,247,0.2);">🏆</span>
+                    <h2 class="section-title">Certifications</h2>
+                </div>
+                <div class="cert-list">
+                    {% for cert in certifications %}
+                    <div class="cert-item">
+                        <span class="cert-icon">📜</span>
+                        <div>
+                            <div class="cert-name">{{ cert.name }}</div>
+                            <div class="cert-issuer">{{ cert.issuer }}{% if cert.date %} • {{ cert.date }}{% endif %}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Experience - Full Width -->
+        {% if experience and experience|length > 0 %}
+        <div class="section-card content-full">
+            <div class="section-header">
+                <span class="section-icon" style="background: rgba(63,185,80,0.2);">💼</span>
+                <h2 class="section-title">Work Experience</h2>
+            </div>
+            {% for exp in experience %}
+            <div class="timeline-entry">
+                <div class="entry-header">
+                    <span class="entry-title">{{ exp.position }}</span>
+                    <span class="entry-date">{{ exp.start_date }} → {{ exp.end_date or 'Present' }}</span>
+                </div>
+                <div class="entry-subtitle">{{ exp.company }}{% if exp.location %} • {{ exp.location }}{% endif %}</div>
+                {% if exp.achievements and exp.achievements|length > 0 %}
+                <ul class="entry-bullets">
+                    {% for achievement in exp.achievements %}
+                    <li>{{ achievement }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <!-- Projects - Full Width -->
+        {% if projects and projects|length > 0 %}
+        <div class="section-card content-full">
+            <div class="section-header">
+                <span class="section-icon" style="background: rgba(210,153,34,0.2);">🚀</span>
+                <h2 class="section-title">Featured Projects</h2>
+            </div>
+            {% for project in projects %}
+            <div class="timeline-entry">
+                <div class="entry-header">
+                    <span class="entry-title">{{ project.title }}</span>
+                    {% if project.start_date %}
+                    <span class="entry-date">{{ project.start_date }}{% if project.end_date %} → {{ project.end_date }}{% endif %}</span>
+                    {% endif %}
+                </div>
+                {% if project.description %}
+                <div class="entry-description">{{ project.description }}</div>
+                {% endif %}
+                {% if project.bullet_points and project.bullet_points|length > 0 %}
+                <ul class="entry-bullets">
+                    {% for bullet in project.bullet_points %}
+                    <li>{{ bullet }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+                {% if project.technologies and project.technologies|length > 0 %}
+                <div class="tech-stack">
+                    {% for tech in project.technologies %}
+                    <span class="tech-tag">{{ tech }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% if project.github_url or project.live_url %}
+                <div class="project-links">
+                    {% if project.github_url %}
+                    <a href="{{ project.github_url }}" class="project-link">📁 Code</a>
+                    {% endif %}
+                    {% if project.live_url %}
+                    <a href="{{ project.live_url }}" class="project-link">🔗 Demo</a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
