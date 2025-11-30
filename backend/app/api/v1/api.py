@@ -3,7 +3,7 @@
 from fastapi import APIRouter
 from app.api.v1.endpoints import (
     health, auth, profiles, projects, templates, resume, ai, 
-    education, experience
+    education, experience, pdfs
 )
 
 api_router = APIRouter()
@@ -17,4 +17,5 @@ api_router.include_router(experience.router, prefix="/experience", tags=["experi
 api_router.include_router(projects.router, prefix="/projects", tags=["projects"])
 api_router.include_router(templates.router, prefix="/templates", tags=["templates"])
 api_router.include_router(resume.router, prefix="/resume", tags=["resume"])
+api_router.include_router(pdfs.router, prefix="/pdfs", tags=["pdf-storage"])
 api_router.include_router(ai.router, tags=["ai-optimization"])

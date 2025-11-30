@@ -50,19 +50,40 @@ app = FastAPI(
 )
 
 # Set all CORS enabled origins
-if settings.BACKEND_CORS_ORIGINS:
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=[str(origin) for origin in settings.BACKEND_CORS_ORIGINS],
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
+# In production, set BACKEND_CORS_ORIGINS to your Vercel frontend URL
+cors_origins = [str(origin) for origin in settings.BACKEND_CORS_ORIGINS] if settings.BACKEND_CORS_ORIGINS else []
 
-# Add trusted host middleware
+# Always allow these origins for development and common deployment patterns
+default_origins = [
+    "http://localhost:3000",
+    "http://localhost:5173",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:5173",
+]
+
+# Combine configured origins with defaults (in production, you should set explicit origins)
+all_origins = list(set(cors_origins + default_origins))
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=all_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["X-Total-Count", "X-Page", "X-Per-Page"],
+)
+
+# Add trusted host middleware (includes Render domains)
 app.add_middleware(
     TrustedHostMiddleware,
-    allowed_hosts=["localhost", "127.0.0.1", "*.vercel.app", "*.railway.app"],
+    allowed_hosts=[
+        "localhost", 
+        "127.0.0.1", 
+        "*.vercel.app", 
+        "*.railway.app",
+        "*.onrender.com",  # Render free tier
+        "*.render.com",
+    ],
 )
 
 # Include API router
@@ -81,14 +102,21 @@ async def root() -> dict:
 
 @app.get("/health", tags=["Health"])
 async def health_check() -> dict:
-    """Health check endpoint."""
+    """Health check endpoint for Render and other platforms."""
     db_status = "healthy" if supabase_client.client else "not_configured"
     
     return {
         "status": "healthy",
         "database": db_status,
         "version": settings.VERSION,
+        "environment": settings.ENVIRONMENT,
     }
+
+
+@app.get("/ping", tags=["Health"])
+async def ping() -> dict:
+    """Lightweight ping endpoint to keep service warm on Render free tier."""
+    return {"pong": True}
 
 
 @app.exception_handler(HTTPException)

@@ -1,5 +1,7 @@
 """Application configuration settings."""
 
+import os
+import secrets
 from pathlib import Path
 from typing import List, Optional
 from pydantic import AnyHttpUrl, EmailStr, HttpUrl, field_validator
@@ -8,6 +10,15 @@ from pydantic.networks import PostgresDsn
 
 # Get the project root directory (parent of backend/)
 PROJECT_ROOT = Path(__file__).parent.parent.parent.parent
+
+
+def get_secret_key() -> str:
+    """Get secret key from environment or generate a secure default."""
+    key = os.getenv("SECRET_KEY")
+    if key:
+        return key
+    # Generate a secure key if not provided (useful for Render auto-generated secrets)
+    return secrets.token_urlsafe(32)
 
 
 class Settings(BaseSettings):
@@ -22,8 +33,13 @@ class Settings(BaseSettings):
     ENVIRONMENT: str = "development"
     DEBUG: bool = True
     
-    # Security
-    SECRET_KEY: str
+    # Render-specific settings
+    RENDER: bool = False  # Set to True when running on Render
+    RENDER_SERVICE_NAME: Optional[str] = None
+    RENDER_INSTANCE_ID: Optional[str] = None
+    
+    # Security (with secure default for deployment platforms)
+    SECRET_KEY: str = secrets.token_urlsafe(32)
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 days
@@ -34,8 +50,9 @@ class Settings(BaseSettings):
     SUPABASE_SERVICE_ROLE_KEY: Optional[str] = None
     DATABASE_URL: Optional[PostgresDsn] = None
     
-    # Redis
-    REDIS_URL: str = "redis://localhost:6379/0"
+    # Redis (optional - disabled on free tier to save memory)
+    REDIS_URL: Optional[str] = None
+    REDIS_ENABLED: bool = False
     
     # S3 Storage
     S3_BUCKET_NAME: Optional[str] = None
@@ -79,6 +96,12 @@ class Settings(BaseSettings):
     # HTML-to-PDF Configuration (for weasyprint)
     HTML_TO_PDF_ENABLED: bool = True
     
+    # Cloud PDF Services (free, no local installation required)
+    # Get a free API key from one of these:
+    PDFSHIFT_API_KEY: Optional[str] = None      # https://pdfshift.io/ - 250 free PDFs/month
+    HTML2PDF_API_KEY: Optional[str] = None      # https://html2pdf.app/ - 100 free PDFs/month
+    BROWSERLESS_API_KEY: Optional[str] = None   # https://browserless.io/ - 1000 free calls/month
+    
     # Overleaf API Configuration
     OVERLEAF_API_URL: Optional[str] = None
     OVERLEAF_API_TOKEN: Optional[str] = None
@@ -121,15 +144,16 @@ class Settings(BaseSettings):
     # Get keys at: https://unsplash.com/developers
     UNSPLASH_ACCESS_KEY: Optional[str] = None
     
-    # PDFShift HTML-to-PDF API (FREE - 50 conversions/month)
-    # Get key at: https://pdfshift.io/
-    PDFSHIFT_API_KEY: Optional[str] = None
-    
     # ============== END FREE API INTEGRATIONS ==============
     
     # Rate Limiting
     RATE_LIMIT_PER_MINUTE: int = 100
     RATE_LIMIT_PER_HOUR: int = 1000
+    
+    # Memory optimization for free tier deployment
+    MEMORY_OPTIMIZED: bool = False  # Set True on Render free tier
+    MAX_WORKERS: int = 1  # Single worker for 512MB RAM
+    LIMIT_CONCURRENCY: int = 50  # Max concurrent connections
     
     # Monitoring
     SENTRY_DSN: Optional[HttpUrl] = None

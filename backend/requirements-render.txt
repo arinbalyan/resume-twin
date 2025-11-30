@@ -1,0 +1,56 @@
+# =====================================================
+# Render Free Tier Optimized Requirements
+# =====================================================
+# Minimal dependencies for 512MB RAM limit
+# Removed heavy packages: celery, redis, weasyprint, latex
+# Using cloud PDF services instead of local generation
+# =====================================================
+
+# Core FastAPI Framework
+fastapi>=0.104.1
+uvicorn[standard]>=0.24.0
+
+# Pydantic for data validation
+pydantic>=2.5.0
+pydantic-settings>=2.1.0
+
+# Database - Supabase (no SQLAlchemy overhead)
+supabase>=2.3.0
+
+# Authentication
+python-jose[cryptography]>=3.3.0
+passlib[bcrypt]>=1.7.4
+
+# HTTP Client (for AI and external APIs)
+httpx>=0.25.2
+
+# File handling
+python-multipart>=0.0.6
+aiofiles>=23.2.1
+
+# Template rendering (lightweight)
+jinja2>=3.1.2
+
+# PDF Generation - Cloud-based (no heavy local deps)
+reportlab>=4.0.7
+
+# Retry logic
+tenacity>=8.2.3
+
+# Environment variables
+python-dotenv>=1.0.0
+
+# Logging (lightweight alternative to structlog)
+# Using built-in logging with custom config
+
+# AWS S3/Supabase Storage
+boto3>=1.34.0
+
+# Image processing (minimal - only for validation)
+pillow>=10.1.0
+
+# File type detection
+python-magic>=0.4.27
+
+# Gunicorn for production (if not using uvicorn workers)
+gunicorn>=21.2.0

@@ -193,7 +193,7 @@ SAMPLE_RESUME_DATA = {
 
 
 class HtmlToPdfService:
-    """Service for generating PDFs from HTML templates using WeasyPrint."""
+    """Service for generating PDFs from HTML templates using WeasyPrint or cloud fallback."""
 
     def __init__(self):
         """Initialize the HTML-to-PDF service."""
@@ -212,10 +212,16 @@ class HtmlToPdfService:
         self.font_config = FontConfiguration() if WEASYPRINT_AVAILABLE else None
         self.weasyprint_available = WEASYPRINT_AVAILABLE
         
+        # Import cloud PDF service for fallback
+        from app.services.cloud_pdf_service import cloud_pdf_service
+        self.cloud_pdf_service = cloud_pdf_service
+        
         if WEASYPRINT_AVAILABLE:
             logger.info(f"HTML-to-PDF service initialized with WeasyPrint. Templates: {self.templates_dir}")
+        elif self.cloud_pdf_service.is_available():
+            logger.info(f"HTML-to-PDF service using cloud provider: {self.cloud_pdf_service.provider}. Templates: {self.templates_dir}")
         else:
-            logger.warning(f"HTML-to-PDF service initialized WITHOUT WeasyPrint. PDF generation will be limited. Templates: {self.templates_dir}")
+            logger.warning(f"HTML-to-PDF service initialized WITHOUT PDF generation. Configure a cloud provider or install WeasyPrint. Templates: {self.templates_dir}")
 
     def render_template(self, template_name: str, context: Dict[str, Any]) -> str:
         """
@@ -241,7 +247,7 @@ class HtmlToPdfService:
             logger.error(f"Failed to render template '{template_name}': {str(e)}")
             raise
 
-    def generate_pdf(
+    async def generate_pdf(
         self,
         template_name: str,
         context: Dict[str, Any],
@@ -249,6 +255,7 @@ class HtmlToPdfService:
     ) -> bytes:
         """
         Generate PDF from HTML template.
+        Uses WeasyPrint if available, otherwise falls back to cloud service.
 
         Args:
             template_name: Name of the HTML template file
@@ -259,49 +266,59 @@ class HtmlToPdfService:
             PDF file as bytes
 
         Raises:
-            Exception: If PDF generation fails or WeasyPrint not available
+            Exception: If PDF generation fails
         """
-        if not self.weasyprint_available:
-            error_msg = (
-                "WeasyPrint is not available. On Windows, you need to install GTK3 libraries. "
-                "See: https://doc.courtbouillon.org/weasyprint/stable/first_steps.html#installation "
-                "Alternatively, use PDF_GENERATION_METHOD=latex in your .env file."
-            )
-            logger.error(error_msg)
-            raise RuntimeError(error_msg)
-            
-        try:
-            # Render HTML template
-            html_content = self.render_template(template_name, context)
-            
-            # Create HTML object
-            html = HTML(string=html_content, base_url=str(self.templates_dir))
-            
-            # Prepare CSS
-            css_list = []
-            if custom_css:
-                css_list.append(CSS(string=custom_css, font_config=self.font_config))
-            
-            # Generate PDF
-            pdf_bytes = html.write_pdf(
-                stylesheets=css_list if css_list else None,
-                font_config=self.font_config
-            )
-            
-            logger.info(f"PDF generated successfully from template '{template_name}' ({len(pdf_bytes)} bytes)")
-            return pdf_bytes
-            
-        except Exception as e:
-            logger.error(f"Failed to generate PDF from template '{template_name}': {str(e)}")
-            raise
+        # Render HTML template first
+        html_content = self.render_template(template_name, context)
+        if custom_css:
+            # Inject custom CSS into the HTML
+            html_content = html_content.replace('</head>', f'<style>{custom_css}</style></head>')
+        
+        # Try WeasyPrint first (local, fastest)
+        if self.weasyprint_available:
+            try:
+                html = HTML(string=html_content, base_url=str(self.templates_dir))
+                css_list = []
+                if custom_css:
+                    css_list.append(CSS(string=custom_css, font_config=self.font_config))
+                
+                pdf_bytes = html.write_pdf(
+                    stylesheets=css_list if css_list else None,
+                    font_config=self.font_config
+                )
+                logger.info(f"PDF generated with WeasyPrint from '{template_name}' ({len(pdf_bytes)} bytes)")
+                return pdf_bytes
+            except Exception as e:
+                logger.warning(f"WeasyPrint failed, trying cloud fallback: {e}")
+        
+        # Try cloud PDF service as fallback
+        if self.cloud_pdf_service.is_available():
+            try:
+                pdf_bytes = await self.cloud_pdf_service.generate_pdf_from_html(html_content)
+                logger.info(f"PDF generated with cloud service from '{template_name}' ({len(pdf_bytes)} bytes)")
+                return pdf_bytes
+            except Exception as e:
+                logger.error(f"Cloud PDF service failed: {e}")
+                raise RuntimeError(f"Cloud PDF generation failed: {e}")
+        
+        # No PDF generation available
+        error_msg = (
+            "No PDF generation method available. Options:\n"
+            "1. Install GTK3 for WeasyPrint (local)\n"
+            "2. Add PDFSHIFT_API_KEY to .env (free: 250 PDFs/month at pdfshift.io)\n"
+            "3. Add HTML2PDF_API_KEY to .env (free tier at html2pdf.app)\n"
+            "4. Add BROWSERLESS_API_KEY to .env (free: 1000 calls/month at browserless.io)"
+        )
+        logger.error(error_msg)
+        raise RuntimeError(error_msg)
 
-    def generate_pdf_from_html(
+    async def generate_pdf_from_html_async(
         self,
         html_content: str,
         custom_css: Optional[str] = None
     ) -> bytes:
         """
-        Generate PDF directly from HTML string.
+        Generate PDF directly from HTML string (async version with cloud fallback).
 
         Args:
             html_content: HTML content as string
@@ -311,38 +328,28 @@ class HtmlToPdfService:
             PDF file as bytes
 
         Raises:
-            Exception: If PDF generation fails or WeasyPrint not available
+            Exception: If PDF generation fails
         """
-        if not self.weasyprint_available:
-            error_msg = (
-                "WeasyPrint is not available. On Windows, you need to install GTK3 libraries. "
-                "See: https://doc.courtbouillon.org/weasyprint/stable/first_steps.html#installation "
-                "Alternatively, use PDF_GENERATION_METHOD=latex in your .env file."
-            )
-            logger.error(error_msg)
-            raise RuntimeError(error_msg)
-            
-        try:
-            # Create HTML object
-            html = HTML(string=html_content)
-            
-            # Prepare CSS
-            css_list = []
-            if custom_css:
-                css_list.append(CSS(string=custom_css, font_config=self.font_config))
-            
-            # Generate PDF
-            pdf_bytes = html.write_pdf(
-                stylesheets=css_list if css_list else None,
-                font_config=self.font_config
-            )
-            
-            logger.info(f"PDF generated successfully from HTML string ({len(pdf_bytes)} bytes)")
+        if custom_css:
+            html_content = html_content.replace('</head>', f'<style>{custom_css}</style></head>')
+        
+        # Try WeasyPrint first
+        if self.weasyprint_available:
+            try:
+                html = HTML(string=html_content)
+                pdf_bytes = html.write_pdf(font_config=self.font_config)
+                logger.info(f"PDF generated with WeasyPrint ({len(pdf_bytes)} bytes)")
+                return pdf_bytes
+            except Exception as e:
+                logger.warning(f"WeasyPrint failed: {e}")
+        
+        # Try cloud PDF service
+        if self.cloud_pdf_service.is_available():
+            pdf_bytes = await self.cloud_pdf_service.generate_pdf_from_html(html_content)
+            logger.info(f"PDF generated with cloud service ({len(pdf_bytes)} bytes)")
             return pdf_bytes
-            
-        except Exception as e:
-            logger.error(f"Failed to generate PDF from HTML string: {str(e)}")
-            raise
+        
+        raise RuntimeError("No PDF generation method available")
 
     def validate_template_exists(self, template_name: str) -> bool:
         """
@@ -432,23 +439,34 @@ class HtmlToPdfService:
         ]
 
     def is_pdf_generation_available(self) -> bool:
-        """Check if PDF generation is available."""
-        return self.weasyprint_available
+        """Check if PDF generation is available (WeasyPrint or cloud)."""
+        return self.weasyprint_available or self.cloud_pdf_service.is_available()
 
     def get_status(self) -> Dict[str, Any]:
-        """Get service status including WeasyPrint availability."""
+        """Get service status including PDF generation availability."""
+        cloud_status = self.cloud_pdf_service.get_status()
+        
+        if self.weasyprint_available:
+            method = "weasyprint"
+            message = "WeasyPrint is ready for PDF generation (local)"
+        elif self.cloud_pdf_service.is_available():
+            method = f"cloud ({cloud_status['provider']})"
+            message = f"Using cloud PDF service: {cloud_status['provider']}"
+        else:
+            method = "none"
+            message = "No PDF method available. Get a free API key from pdfshift.io"
+        
         return {
+            "pdf_available": self.is_pdf_generation_available(),
+            "method": method,
             "weasyprint_available": self.weasyprint_available,
+            "cloud_pdf": cloud_status,
             "templates_dir": str(self.templates_dir),
             "templates_count": len(self.list_available_templates()),
-            "message": (
-                "WeasyPrint is ready for PDF generation" 
-                if self.weasyprint_available 
-                else "WeasyPrint not available - install GTK3 libraries or use LaTeX method"
-            )
+            "message": message
         }
 
-    def preview_template(self, template_name: str, custom_data: Optional[Dict[str, Any]] = None) -> bytes:
+    async def preview_template(self, template_name: str, custom_data: Optional[Dict[str, Any]] = None) -> bytes:
         """
         Generate a preview PDF using sample data.
 
@@ -460,14 +478,14 @@ class HtmlToPdfService:
             PDF bytes for preview
             
         Raises:
-            RuntimeError: If WeasyPrint not available
+            RuntimeError: If no PDF generation available
         """
         # Merge sample data with any custom overrides
         preview_data = SAMPLE_RESUME_DATA.copy()
         if custom_data:
             preview_data.update(custom_data)
         
-        return self.generate_pdf(template_name, preview_data)
+        return await self.generate_pdf(template_name, preview_data)
 
     def render_template_html(self, template_name: str, custom_data: Optional[Dict[str, Any]] = None) -> str:
         """

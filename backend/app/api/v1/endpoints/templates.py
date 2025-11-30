@@ -65,11 +65,8 @@ async def get_templates_status() -> Dict[str, Any]:
             "pdf_generation_method": settings.PDF_GENERATION_METHOD,
             "method_status": method_status,
             "html_pdf_status": html_status,
-            "recommendation": (
-                "All systems ready" 
-                if html_status["weasyprint_available"] 
-                else "WeasyPrint not available. Consider using PDF_GENERATION_METHOD=latex in .env, or install GTK3 libraries."
-            )
+            "pdf_available": html_status.get("pdf_available", False),
+            "recommendation": html_status.get("message", "Check configuration")
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to get status: {str(e)}")
@@ -144,17 +141,23 @@ async def preview_template_pdf(
     user_name: Optional[str] = Query(None, description="Custom name for preview"),
     title: Optional[str] = Query(None, description="Custom title for preview")
 ) -> StreamingResponse:
-    """Preview template as PDF with sample data."""
+    """Preview template as PDF with sample data. Uses cloud PDF service if WeasyPrint not available."""
     try:
         # Check if PDF generation is available
         if not html_to_pdf_service.is_pdf_generation_available():
+            status = html_to_pdf_service.get_status()
             raise HTTPException(
                 status_code=503,
                 detail={
                     "error": "PDF generation not available",
-                    "reason": "WeasyPrint requires GTK3 libraries which are not installed",
-                    "solution": "Install GTK3 (see https://doc.courtbouillon.org/weasyprint/stable/first_steps.html#installation) or use HTML preview instead",
-                    "alternative": "Use the /preview/html endpoint to preview templates as HTML"
+                    "reason": "No PDF generation method configured",
+                    "solution": "Get a free API key from pdfshift.io and add PDFSHIFT_API_KEY to .env",
+                    "alternatives": [
+                        "PDFSHIFT_API_KEY - 250 free PDFs/month at pdfshift.io",
+                        "HTML2PDF_API_KEY - 100 free PDFs/month at html2pdf.app",
+                        "BROWSERLESS_API_KEY - 1000 free calls/month at browserless.io"
+                    ],
+                    "html_preview": "Use the /preview/html endpoint to preview templates as HTML"
                 }
             )
         
@@ -173,8 +176,8 @@ async def preview_template_pdf(
         if title:
             custom_data['title'] = title
         
-        # Generate preview PDF
-        pdf_bytes = html_to_pdf_service.preview_template(
+        # Generate preview PDF (async - supports cloud fallback)
+        pdf_bytes = await html_to_pdf_service.preview_template(
             template_name,
             custom_data if custom_data else None
         )
@@ -195,11 +198,10 @@ async def preview_template_pdf(
     except HTTPException:
         raise
     except RuntimeError as e:
-        # WeasyPrint not available error
         raise HTTPException(
             status_code=503, 
             detail={
-                "error": "PDF generation not available",
+                "error": "PDF generation failed",
                 "message": str(e),
                 "alternative": "Use the /preview/html endpoint"
             }
@@ -221,8 +223,7 @@ async def preview_template_with_custom_data(
                 status_code=503,
                 detail={
                     "error": "PDF generation not available",
-                    "reason": "WeasyPrint requires GTK3 libraries which are not installed",
-                    "solution": "Install GTK3 or use HTML preview instead"
+                    "solution": "Get a free API key from pdfshift.io and add PDFSHIFT_API_KEY to .env"
                 }
             )
         
@@ -234,8 +235,8 @@ async def preview_template_with_custom_data(
         if not html_to_pdf_service.validate_template_exists(template_name):
             raise HTTPException(status_code=404, detail=f"Template '{template_name}' not found")
         
-        # Generate preview PDF with custom data
-        pdf_bytes = html_to_pdf_service.preview_template(
+        # Generate preview PDF with custom data (async - supports cloud)
+        pdf_bytes = await html_to_pdf_service.preview_template(
             template_name,
             request.custom_data
         )

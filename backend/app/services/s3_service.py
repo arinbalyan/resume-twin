@@ -318,13 +318,14 @@ def validate_and_upload_file(
         file_path = FileManager.generate_file_path(user_id, original_filename, file_category)
     else:
         import uuid
-        from datetime import datetime
+        from datetime import datetime as dt
         _, ext = original_filename.rsplit('.', 1)
         unique_filename = f"{uuid.uuid4()}.{ext}"
-        timestamp = datetime.now().strftime("%Y%m%d")
+        timestamp = dt.now().strftime("%Y%m%d")
         file_path = f"uploads/{timestamp}/{unique_filename}"
     
     # Upload to S3
+    from datetime import datetime
     metadata = {
         'original_filename': original_filename,
         'upload_timestamp': datetime.now().isoformat()
